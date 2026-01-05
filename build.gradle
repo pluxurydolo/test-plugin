@@ -1,0 +1,133 @@
+import static org.jreleaser.model.Active.ALWAYS
+
+plugins {
+    id 'groovy-gradle-plugin'
+    id 'maven-publish'
+    id 'org.jreleaser' version "$jreleaserVersion"
+}
+
+group = 'io.github.pluxurydolo'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+gradlePlugin {
+    plugins {
+        integrationTestPlugin {
+            id = 'io.github.pluxurydolo.integration-test-plugin'
+            implementationClass = 'com.pluxurydolo.IntegrationTestPlugin'
+        }
+    }
+}
+
+tasks.register('sourcesJar', Jar) {
+    from sourceSets.main.allJava
+    archiveClassifier = 'sources'
+}
+
+tasks.register('javadocJar', Jar) {
+    from javadoc
+    archiveClassifier = 'javadoc'
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            from components.java
+            artifact tasks.named('sourcesJar')
+            artifact tasks.named('javadocJar')
+
+            pom {
+                name = 'integration-test-plugin'
+                description = 'Integration Test Plugin made for personal use'
+                url = 'https://upload.wikimedia.org/wikipedia/en/c/ce/Randallkennedybook.jpg'
+                developers {
+                    developer {
+                        id = 'pluxurydolo'
+                        name = 'Alexander'
+                    }
+                }
+                scm {
+                    url = 'scm:git:git://github.com/integration-test-plugin.git'
+                    connection = 'scm:git:git://github.com/integration-test-plugin.git'
+                    tag = '1.0.0'
+                }
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+
+    publications.withType(MavenPublication).configureEach { publication ->
+        if (publication.name == 'release') return
+
+        publication.artifacts.clear()
+        publication.artifact jar
+        publication.artifact sourcesJar
+        publication.artifact javadocJar
+
+        publication.pom {
+            name = 'integration-test-plugin'
+            description = 'Integration Test Plugin made for personal use'
+            url = 'https://upload.wikimedia.org/wikipedia/en/c/ce/Randallkennedybook.jpg'
+            developers {
+                developer {
+                    id = 'pluxurydolo'
+                    name = 'Alexander'
+                }
+            }
+            scm {
+                url = 'scm:git:git://github.com/integration-test-plugin.git'
+                connection = 'scm:git:git://github.com/integration-test-plugin.git'
+                tag = '1.0.0'
+            }
+            licenses {
+                license {
+                    name = 'The Apache License, Version 2.0'
+                    url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url = uri layout.buildDirectory.dir('staging-deploy')
+        }
+    }
+}
+
+jreleaser {
+    release {
+        github {
+            skipRelease.set true
+            skipTag.set true
+        }
+    }
+    signing {
+        active.set ALWAYS
+        armored.set true
+        verify.set true
+    }
+    project {
+        inceptionYear.set '2026'
+        author('@pluxurydolo')
+    }
+    deploy {
+        maven {
+            mavenCentral.create('sonatype') {
+                active.set ALWAYS
+                url = 'https://central.sonatype.com/api/v1/publisher'
+                stagingRepository layout.buildDirectory.dir('staging-deploy').get().toString()
+                setAuthorization 'Basic'
+                retryDelay.set 60
+            }
+        }
+    }
+}
