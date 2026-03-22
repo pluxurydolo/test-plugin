@@ -4,10 +4,10 @@ plugins {
     id 'groovy-gradle-plugin'
     id 'maven-publish'
     id 'org.jreleaser' version "$jreleaserVersion"
+    id 'io.github.pluxurydolo.version-plugin' version "$versionPluginVersion"
 }
 
 group = 'io.github.pluxurydolo'
-version = '1.1.0'
 
 java {
     toolchain {
@@ -38,14 +38,48 @@ tasks.register('javadocJar', Jar) {
     archiveClassifier = 'javadoc'
 }
 
-publishing {
-    publications {
-        release(MavenPublication) {
-            from components.java
-            artifact tasks.named('sourcesJar')
-            artifact tasks.named('javadocJar')
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.java
+                artifact tasks.named('sourcesJar')
+                artifact tasks.named('javadocJar')
 
-            pom {
+                pom {
+                    name = 'integration-test-plugin'
+                    description = 'Integration Test Plugin made for personal use'
+                    url = 'https://upload.wikimedia.org/wikipedia/en/c/ce/Randallkennedybook.jpg'
+                    developers {
+                        developer {
+                            id = 'pluxurydolo'
+                            name = 'Alexander'
+                        }
+                    }
+                    scm {
+                        url = 'scm:git:git://github.com/integration-test-plugin.git'
+                        connection = 'scm:git:git://github.com/integration-test-plugin.git'
+                        tag = project.version
+                    }
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+                }
+            }
+        }
+
+        publications.withType(MavenPublication).configureEach { publication ->
+            if (publication.name == 'release') return
+
+            publication.artifacts.clear()
+            publication.artifact jar
+            publication.artifact sourcesJar
+            publication.artifact javadocJar
+
+            publication.pom {
                 name = 'integration-test-plugin'
                 description = 'Integration Test Plugin made for personal use'
                 url = 'https://upload.wikimedia.org/wikipedia/en/c/ce/Randallkennedybook.jpg'
@@ -58,7 +92,7 @@ publishing {
                 scm {
                     url = 'scm:git:git://github.com/integration-test-plugin.git'
                     connection = 'scm:git:git://github.com/integration-test-plugin.git'
-                    tag = '1.1.0'
+                    tag = project.version
                 }
                 licenses {
                     license {
@@ -68,43 +102,11 @@ publishing {
                 }
             }
         }
-    }
 
-    publications.withType(MavenPublication).configureEach { publication ->
-        if (publication.name == 'release') return
-
-        publication.artifacts.clear()
-        publication.artifact jar
-        publication.artifact sourcesJar
-        publication.artifact javadocJar
-
-        publication.pom {
-            name = 'integration-test-plugin'
-            description = 'Integration Test Plugin made for personal use'
-            url = 'https://upload.wikimedia.org/wikipedia/en/c/ce/Randallkennedybook.jpg'
-            developers {
-                developer {
-                    id = 'pluxurydolo'
-                    name = 'Alexander'
-                }
+        repositories {
+            maven {
+                url = uri layout.buildDirectory.dir('staging-deploy')
             }
-            scm {
-                url = 'scm:git:git://github.com/integration-test-plugin.git'
-                connection = 'scm:git:git://github.com/integration-test-plugin.git'
-                tag = '1.1.0'
-            }
-            licenses {
-                license {
-                    name = 'The Apache License, Version 2.0'
-                    url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                }
-            }
-        }
-    }
-
-    repositories {
-        maven {
-            url = uri layout.buildDirectory.dir('staging-deploy')
         }
     }
 }

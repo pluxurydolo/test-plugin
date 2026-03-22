@@ -5,6 +5,8 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.testing.Test
 
 class IntegrationTestPlugin implements Plugin<Project> {
+
+    @Override
     void apply(Project project) {
         configureIdea(project)
 
@@ -44,7 +46,7 @@ class IntegrationTestPlugin implements Plugin<Project> {
         }
     }
 
-    private void configureIdea(Project project) {
+    private static void configureIdea(Project project) {
         project.plugins.apply('idea')
 
         project.afterEvaluate {
