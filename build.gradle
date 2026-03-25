@@ -19,13 +19,18 @@ java {
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
+}
+
+dependencies {
+    implementation "com.adarshr:gradle-test-logger-plugin:$testLoggerVersion"
 }
 
 gradlePlugin {
     plugins {
-        integrationTestPlugin {
-            id = 'io.github.pluxurydolo.integration-test-plugin'
-            implementationClass = 'com.pluxurydolo.IntegrationTestPlugin'
+        testPlugin {
+            id = 'io.github.pluxurydolo.test-plugin'
+            implementationClass = 'com.pluxurydolo.TestPlugin'
         }
     }
 }
@@ -35,9 +40,9 @@ afterEvaluate {
         publications {
             withType(MavenPublication).configureEach {
                 pom {
-                    name = 'integration-test-plugin'
-                    description = 'Integration Test Plugin made for personal use'
-                    url = 'https://github.com/pluxurydolo/integration-test-plugin'
+                    name = 'test-plugin'
+                    description = 'Test Plugin made for personal use'
+                    url = 'https://github.com/pluxurydolo/test-plugin'
 
                     developers {
                         developer {
@@ -47,8 +52,8 @@ afterEvaluate {
                     }
 
                     scm {
-                        url = 'scm:git:git://github.com/integration-test-plugin.git'
-                        connection = 'scm:git:git://github.com/integration-test-plugin.git'
+                        url = 'scm:git:git://github.com/test-plugin.git'
+                        connection = 'scm:git:git://github.com/test-plugin.git'
                         tag = project.version
                     }
 

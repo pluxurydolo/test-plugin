@@ -5,4 +5,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'integration-test-plugin'
+rootProject.name = 'test-plugin'

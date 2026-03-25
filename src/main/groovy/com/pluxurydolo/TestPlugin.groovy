@@ -1,13 +1,20 @@
 package com.pluxurydolo
 
+import com.adarshr.gradle.testlogger.TestLoggerExtension
+import com.adarshr.gradle.testlogger.TestLoggerPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.testing.Test
 
-class IntegrationTestPlugin implements Plugin<Project> {
+import static com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA
+
+class TestPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        project.pluginManager.apply(TestLoggerPlugin)
+
+        configureTestLogger(project)
         configureIdea(project)
 
         def integrationTestSourceSet = project.sourceSets.create('integrationTest')
@@ -43,6 +50,18 @@ class IntegrationTestPlugin implements Plugin<Project> {
                 testTask.useJUnitPlatform()
                 testTask.systemProperty 'spring.profiles.active', 'test'
             }
+        }
+    }
+
+    private static void configureTestLogger(Project project) {
+        project.extensions.configure(TestLoggerExtension) { extension ->
+            extension.showExceptions = true
+            extension.showStackTraces = true
+            extension.showSummary = true
+            extension.showPassed = true
+            extension.showSkipped = true
+            extension.showFailed = true
+            extension.theme = MOCHA
         }
     }
 
